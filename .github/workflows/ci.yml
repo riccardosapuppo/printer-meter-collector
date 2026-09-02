@@ -9,6 +9,10 @@ jobs:
   check:
     runs-on: ubuntu-latest
 
+    # A job that hangs is worse than a job that fails: it stays amber for six
+    # hours and nobody looks at it, while a red one sends an email.
+    timeout-minutes: 15
+
     # A real SNMP agent, so the hand-written codec is checked against something
     # written by somebody else. Without this the simulator and the client agree
     # with each other about anything they both get wrong.

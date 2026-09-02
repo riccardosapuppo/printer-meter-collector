@@ -48,6 +48,53 @@ async function post(where, body) {
   return { status: response.status, body: await response.json() };
 }
 
+/**
+ * Waits until the round the service started at boot has actually finished.
+ *
+ * `running` is "a round is in flight"; `rounds` is how many have completed. So
+ * the fleet is only fully reported once one round has completed AND none is in
+ * flight — either half alone is a state the report is still being written in.
+ *
+ * Polled rather than slept against: a fixed delay is a guess about somebody
+ * else's machine, and the guess is what failed.
+ */
+async function untilTheFirstRoundIsDone({ within = 90_000 } = {}) {
+  const until = Date.now() + within;
+  let last = null;
+
+  while (Date.now() < until) {
+    const health = await get('/api/health');
+    last = health.body?.collector;
+
+    if (last && last.rounds >= 1 && last.running === false) {
+      console.log(`  (the first round finished: ${last.rounds} round, ${health.body.devices} devices)`);
+      return;
+    }
+
+    await new Promise((done) => setTimeout(done, 250));
+  }
+
+  throw new Error(
+    `the first round never finished within ${within} ms — the collector says ${JSON.stringify(last)}`
+  );
+}
+
+/** Waits until no round is in flight, whoever started it. */
+async function untilNothingIsInFlight({ within = 90_000 } = {}) {
+  const until = Date.now() + within;
+  let last = null;
+
+  while (Date.now() < until) {
+    const health = await get('/api/health');
+    last = health.body?.collector;
+
+    if (last && last.running === false) return;
+    await new Promise((done) => setTimeout(done, 250));
+  }
+
+  throw new Error(`a round was still going after ${within} ms — ${JSON.stringify(last)}`);
+}
+
 async function main() {
   console.log(`Driving ${BASE}\n`);
 
@@ -69,6 +116,20 @@ async function main() {
 
   // -------------------------------------------------------------- the fleet
   console.log('\nThe fleet');
+
+  // Waited for, not assumed.
+  //
+  // The collector starts a round the moment it comes up, and everything below
+  // reads what that round produced. On this workstation it had always finished
+  // by the time the first request arrived; on a continuous-integration runner
+  // it had not, five of the six printers had answered so far, and the check
+  // that exists to notice a machine going missing reported a machine missing —
+  // right about the wrong thing. Then asking for a second round was refused,
+  // correctly, because the first was still going.
+  //
+  // A check that depends on something finishing in time is a check that passes
+  // on the machine that wrote it.
+  await untilTheFirstRoundIsDone();
 
   const first = await get('/api/devices');
   expect('the fleet comes back grouped by site', first.body.sites.length >= 3, first.body.sites.length);
@@ -158,6 +219,12 @@ async function main() {
 
   // ------------------------------------------------------- collecting again
   console.log('\nGoing round again');
+
+  // The scheduler goes round on its own every minute. Everything above takes
+  // seconds here and could take longer elsewhere, so the scheduled round can
+  // have started while this check was reading counters — and asking for one on
+  // top of it is refused, correctly, by the very guard being tested.
+  await untilNothingIsInFlight();
 
   const round = await post('/api/round');
   expect('a round can be asked for', round.status === 200, JSON.stringify(round.body));
