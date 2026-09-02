@@ -1,0 +1,87 @@
+name: build and check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    # A real SNMP agent, so the hand-written codec is checked against something
+    # written by somebody else. Without this the simulator and the client agree
+    # with each other about anything they both get wrong.
+    services:
+      snmpd:
+        image: polinux/snmpd
+        ports:
+          - 16200:161/udp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Exactly the minimum the README claims.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.11'
+          cache: npm
+
+      - run: npm ci
+
+      - name: The parts
+        run: npm test
+
+      - name: The codec, against an agent nobody here wrote
+        run: npm run check:snmp
+
+      - name: The header mark and the tab icon are one drawing
+        run: npm run check:mark
+
+      - name: Start six invented printers
+        run: |
+          node sim/fleet.js > fleet.log 2>&1 &
+          for try in $(seq 1 40); do
+            node -e '
+              const dgram = require("node:dgram");
+              const s = dgram.createSocket("udp4");
+              s.bind(0, () => s.close(() => process.exit(0)));
+            ' && break
+            sleep 0.25
+          done
+          sleep 2
+          cat fleet.log
+
+      - name: Start the collector
+        run: |
+          node src/index.js --port 3500 > collector.log 2>&1 &
+          for try in $(seq 1 60); do
+            curl -sf http://127.0.0.1:3500/api/health > /dev/null && break
+            sleep 0.5
+          done
+          curl -sf http://127.0.0.1:3500/api/health
+
+      - name: Drive the whole collector over HTTP
+        run: npm run walkthrough
+
+      - name: What it said while it ran
+        if: always()
+        run: cat collector.log
+
+      # An assertion about what this is, that fails loudly if it stops being
+      # true: one runtime dependency, and no `set` anywhere near a device.
+      - name: One runtime dependency, and nothing that writes to a printer
+        run: |
+          node -e '
+            const held = Object.keys(require("./package.json").dependencies ?? {});
+            console.log("runtime dependencies:", held.join(", "));
+            if (held.length !== 1 || held[0] !== "express") {
+              console.error("Expected exactly express. If that is deliberate, say so in the README and change this.");
+              process.exit(1);
+            }
+          '
+          if grep -rn "TAG.SET\|SET_REQUEST\|0xa3" src/ ; then
+            echo "Something in src/ looks like an SNMP set request. This service reads meters."
+            exit 1
+          fi
+          echo "No set request anywhere in src/."
