@@ -1,0 +1,496 @@
+/* The look, and where it comes from.
+ *
+ * An operations board: something glanced at to decide where to send somebody,
+ * not read. So it is quiet almost everywhere and loud in exactly one place —
+ * the sentence saying what needs doing — and the numbers sit under it.
+ *
+ *   - **Steel on a cool ground.** Nothing here is trying to be pleasant; it is
+ *     trying to be legible across a room.
+ *   - **Colour means state and nothing else.** There is no decorative accent.
+ *     Green, amber and red appear only on a supply and only when they are the
+ *     answer.
+ *   - **Hatching means "nobody knows".** This is the signature of the page and
+ *     the argument of the project: a device that cannot measure its toner gets
+ *     a striped bar, never an empty one. An empty bar is a confident picture of
+ *     something nobody knows, it looks exactly like a machine about to stop,
+ *     and it gets a cartridge ordered for a printer that is full.
+ */
+
+:root {
+  --ink: #16202b;
+  --ink-soft: #4a5866;
+  --ink-faint: #7d8b99;
+
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --raised: #f5f7f9;
+  --line: #dde3e8;
+  --hover: #e7ecf1;
+
+  --steel: #2f5d8a;
+  --steel-ink: #1d3d5c;
+  --steel-soft: #e6eef6;
+
+  /* State. Nothing else on the page is allowed these. */
+  --fine: #1d7a52;
+  --fine-soft: #e3f2ea;
+  --watch: #8a6410;
+  --watch-soft: #faf0d9;
+  --low: #9c2f2a;
+  --low-soft: #fae9e7;
+
+  /* Not a state: the absence of one. */
+  --unknown: #7d8b99;
+  --unknown-soft: #eceff2;
+
+  --logo-ground: #1d2530;
+  --logo-mark: #9fc4e8;
+
+  --shadow: 0 1px 2px rgb(22 32 43 / 0.05), 0 5px 16px rgb(22 32 43 / 0.05);
+
+  --ui: system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e6ecf2;
+    --ink-soft: #a8b5c2;
+    --ink-faint: #788592;
+
+    --bg: #10161d;
+    --surface: #182029;
+    --raised: #1d2731;
+    --line: #2b3742;
+    --hover: #232e39;
+
+    --steel: #7fb3e0;
+    --steel-ink: #cfe3f5;
+    --steel-soft: #1a2c3d;
+
+    --fine: #57bd8c;
+    --fine-soft: #14301f;
+    --watch: #d7a851;
+    --watch-soft: #33280f;
+    --low: #e58b83;
+    --low-soft: #351d1b;
+
+    --unknown: #788592;
+    --unknown-soft: #202a34;
+
+    --shadow: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+/* ------------------------------------------------------------------ header */
+
+.top {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  width: min(76rem, 100%);
+  margin: 0 auto;
+  padding: 0.65rem 1.4rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.wordmark strong {
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-size: 1.02rem;
+}
+
+.wordmark span {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+}
+
+.doing {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.count {
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+button.go {
+  padding: 0.42rem 0.9rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--steel);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+button.go:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+button.go:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--steel);
+  outline-offset: 1px;
+}
+
+/* -------------------------------------------------------------------- page */
+
+main {
+  width: min(76rem, 100%);
+  margin: 0 auto;
+  padding: 1.4rem 1.4rem 3rem;
+}
+
+.find {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 1.2rem;
+  max-width: 30rem;
+}
+
+.find .what {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+input[type='search'] {
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.none {
+  color: var(--ink-faint);
+}
+
+/* ------------------------------------------------------------------- sites */
+
+.site {
+  margin-bottom: 1.6rem;
+}
+
+.site h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.6rem;
+  font-size: 1.02rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.site h2 em {
+  font-style: normal;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+.site h2 .needs,
+.site h2 .silent {
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.site h2 .needs {
+  background: var(--watch-soft);
+  color: var(--watch);
+}
+
+.site h2 .silent {
+  background: var(--low-soft);
+  color: var(--low);
+}
+
+/* ----------------------------------------------------------------- devices */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.9rem 1.05rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 0.7rem;
+}
+
+.device[data-reachable='false'] {
+  border-left: 3px solid var(--low);
+}
+
+.device header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.name {
+  margin: 0;
+  font-weight: 620;
+}
+
+.model {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+}
+
+.pages {
+  margin: 0;
+  text-align: right;
+  font-size: 1.15rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pages em {
+  display: block;
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+/* What to do, said first and in words. The whole reason for collecting any
+   of this: a board that shows readings and no conclusions has moved the work
+   rather than done it. */
+ul.todo {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+ul.todo li {
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  background: var(--watch-soft);
+  color: var(--watch);
+  font-size: 0.88rem;
+}
+
+ul.todo li[data-urgent='true'] {
+  background: var(--low-soft);
+  color: var(--low);
+}
+
+ul.todo strong {
+  font-weight: 620;
+}
+
+ul.todo span {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+/* ---------------------------------------------------------------- supplies */
+
+.supplies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.5rem 1.1rem;
+  margin-top: 0.85rem;
+}
+
+.gauge {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 'what value' 'bar bar' 'why why';
+  gap: 0.15rem 0.5rem;
+  align-items: baseline;
+}
+
+.gauge .what {
+  grid-area: what;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gauge .value {
+  grid-area: value;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge .why {
+  grid-area: why;
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+}
+
+.bar {
+  grid-area: bar;
+  height: 10px;
+  border-radius: 4px;
+  background: var(--hover);
+  overflow: hidden;
+}
+
+.bar .fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--fine);
+}
+
+.gauge[data-state='watch'] .fill { background: var(--watch); }
+.gauge[data-state='watch'] .value { color: var(--watch); }
+.gauge[data-state='low'] .fill { background: var(--low); }
+.gauge[data-state='low'] .value { color: var(--low); }
+
+/*
+ * "Nobody knows", drawn so it can never be mistaken for a reading.
+ *
+ * Hatched, grey, full width and labelled in words. Full width because the
+ * hatching IS the value: a hatched bar at 40% would be a number nobody has.
+ * The one thing it must not look like is an empty bar, which is a confident
+ * picture of a machine about to stop.
+ */
+.gauge[data-state='unknown'] .value {
+  color: var(--unknown);
+  font-weight: 500;
+  font-style: italic;
+}
+
+.bar[data-unknown='true'] .fill {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--unknown-soft),
+    var(--unknown-soft) 4px,
+    var(--hover) 4px,
+    var(--hover) 8px
+  );
+  border: 1px solid var(--line);
+}
+
+.trays {
+  margin: 0.7rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+}
+
+/* ------------------------------------------------------------- the strangers */
+
+.card.unknown {
+  margin-top: 1.5rem;
+  border-style: dashed;
+}
+
+.card.unknown h2 {
+  margin: 0 0 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.card.unknown ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: min(76rem, 100%);
+  margin: 0 auto;
+  padding: 1.1rem 1.4rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+@media (max-width: 48rem) {
+  .bar { padding: 0.6rem 1rem; }
+  main { padding: 1.1rem 1rem 2.5rem; }
+  .device header { flex-direction: column; gap: 0.3rem; }
+  .pages { text-align: left; }
+  .supplies { grid-template-columns: 1fr; }
+}

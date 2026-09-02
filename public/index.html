@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Printer meters</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="theme-color" content="#1d2530" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body>
+    <!--
+      A board somebody glances at to decide where to send an engineer.
+
+      The shape comes from the original: a search box, then sites that open, and
+      a device inside each. That is right, because an engineer visits a site and
+      not a serial number, and a flat list of two hundred rows has to be sorted
+      by hand every morning.
+
+      What is different is what a row leads with. The original showed numbers and
+      left somebody to work out which machine needed a visit; this leads with the
+      sentence — "Magenta Toner Cartridge is at 3%" — and puts the numbers under
+      it. A dashboard that shows readings and no conclusions has moved the work
+      rather than done it.
+    -->
+
+    <header class="top">
+      <div class="bar">
+        <span class="brand">
+          <!--
+            The mark: a sheet with a level on it. The same drawing is
+            favicon.svg, and `npm run check:mark` compares them.
+          -->
+          <svg width="30" height="30" viewBox="0 0 32 32" role="img" aria-label="Printer meters" fill="none">
+            <rect width="32" height="32" rx="7" fill="var(--logo-ground)" />
+            <rect x="9" y="6" width="14" height="20" rx="2.5" fill="var(--logo-mark)" opacity="0.35" />
+            <rect x="9" y="17" width="14" height="9" rx="2.5" fill="var(--logo-mark)" />
+          </svg>
+          <span class="wordmark">
+            <strong>Printer meters</strong>
+            <span id="whatItReads">reading the fleet…</span>
+          </span>
+        </span>
+
+        <div class="doing">
+          <span class="count" id="summary"></span>
+          <button type="button" class="go" id="collectNow">Collect now</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <label class="find">
+        <span class="what">Find</span>
+        <input id="find" type="search" placeholder="a site, a serial, a model, or what it needs" autocomplete="off" />
+      </label>
+
+      <p class="none" id="none" hidden>Nothing here matches that.</p>
+
+      <div id="sites"></div>
+
+      <!-- Addresses that answered and would not say which device they are.
+           Kept apart rather than filed under a made-up key: two of them merged
+           into one machine would produce impossible counters. -->
+      <section class="card unknown" id="unidentifiedCard" hidden>
+        <h2>Answered, and would not say which device it is</h2>
+        <ul id="unidentified"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <span>
+        Everything here is invented, and read over SNMP from the simulated fleet in
+        <code>sim/</code>. Read-only: this service has no way to change a device.
+      </span>
+      <span>Developed by Riccardo Sapuppo</span>
+    </footer>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
