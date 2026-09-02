@@ -1,0 +1,30 @@
+{
+  "name": "printer-meter-collector",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Collects page counters and consumable levels from networked printers over SNMP, on the standard Printer MIB, and serves the history behind an API and a dashboard.",
+  "author": "Riccardo Sapuppo",
+  "license": "MIT",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "fleet": "node sim/fleet.js",
+    "build": "node tools/build-bundle.mjs",
+    "test": "node --test",
+    "walkthrough": "node tools/walkthrough.mjs",
+    "check:snmp": "node tools/against-a-real-agent.mjs",
+    "check:screen": "node tools/through-the-screen.mjs",
+    "check:mark": "node tools/check-mark.mjs",
+    "screenshots": "node tools/screenshots.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.4"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}
