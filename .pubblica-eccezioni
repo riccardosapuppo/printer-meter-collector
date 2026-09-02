@@ -10,8 +10,8 @@
 #      quei numeri scritti da qualche parte, il rifiuto non esiste.
 #   2. 127.0.0.1, che è il parco simulato: sei stampanti inventate che girano
 #      sulla macchina di chi legge e muoiono con Ctrl-C.
-#   3. Gli esempi nella documentazione e nei messaggi d'errore, del tipo
-#      192.168.1.0/24, che è l'indirizzo che si scrive su una lavagna.
+#   3. Gli esempi nella documentazione e nei messaggi d'errore: la sottorete
+#      che chiunque scrive su una lavagna quando spiega che cos'e una sottorete.
 #
 # Nessun indirizzo di un apparato aziendale, nessuna sottorete di un cliente,
 # nessun numero di serie vero, nessuna community string vera: quelli bloccano
@@ -33,3 +33,8 @@ tools/against-a-real-agent.mjs  # l'agente in contenitore su loopback
 tools/through-the-screen.mjs    # la pagina locale
 tools/build-bundle.mjs      # la porta locale su cui il fascio viene avviato per verificare che parta
 README.md                   # gli esempi che spiegano come puntarlo ai propri apparati
+
+# E un falso positivo che non e nemmeno un indirizzo: ogni object identifier
+# comincia per 1.3.6.1 (iso.org.dod.internet), quattro numeri sotto 255 separati
+# da punti. E la radice di tutta la gerarchia SNMP, definita dalla IETF.
+src/snmp/oids.js            # gli OID degli standard aperti, che iniziano tutti allo stesso modo
