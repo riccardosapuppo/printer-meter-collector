@@ -45,7 +45,15 @@
         </span>
 
         <div class="doing">
-          <span class="count" id="summary"></span>
+          <span class="count">
+            <span id="summary"></span>
+            <!-- The standing state and the last event are two different things,
+                 and one must not overwrite the other. Pressing Collect now put
+                 "5 of 6 answered in 6s" here and the refresh that followed
+                 replaced it a moment later, so the button appeared to do
+                 nothing. -->
+            <em id="lastRound"></em>
+          </span>
           <button type="button" class="go" id="collectNow">Collect now</button>
         </div>
       </div>

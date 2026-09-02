@@ -42,12 +42,20 @@ $('collectNow').addEventListener('click', async () => {
   button.disabled = false;
   button.textContent = 'Collect now';
 
+  // The last round goes in its own place, not in the summary.
+  //
+  // It was in the summary, and `draw()` overwrote it with the standing state a
+  // moment later — so pressing the button appeared to do nothing at all. Two
+  // different facts, two places: "9 things to do" is what is true now, "5 of 6
+  // answered in 6s" is what just happened.
   if (!response.ok) {
-    $('summary').textContent = said.error;
+    $('lastRound').textContent = said.error;
     return;
   }
 
-  $('summary').textContent = `${said.answered} of ${said.asked} answered in ${Math.round(said.tookMs / 1000)}s`;
+  $('lastRound').textContent =
+    `${said.answered} of ${said.asked} answered in ${Math.round(said.tookMs / 1000)}s`;
+
   await refresh();
 });
 

@@ -1,0 +1,35 @@
+# Riscontri veri che non sono dati privati, e perché.
+#
+# Ognuno è stato letto. Nessuno è l'indirizzo di una macchina che esiste.
+#
+# Gli indirizzi che il cancello segnala sono di tre specie e nessuna è un
+# apparato reale:
+#
+#   1. Le DEFINIZIONI degli intervalli privati (RFC 1918). Sono la costante che
+#      serve a rifiutare una scansione fuori dalla rete di chi la lancia: senza
+#      quei numeri scritti da qualche parte, il rifiuto non esiste.
+#   2. 127.0.0.1, che è il parco simulato: sei stampanti inventate che girano
+#      sulla macchina di chi legge e muoiono con Ctrl-C.
+#   3. Gli esempi nella documentazione e nei messaggi d'errore, del tipo
+#      192.168.1.0/24, che è l'indirizzo che si scrive su una lavagna.
+#
+# Nessun indirizzo di un apparato aziendale, nessuna sottorete di un cliente,
+# nessun numero di serie vero, nessuna community string vera: quelli bloccano
+# comunque, da qualunque file.
+#
+# Nota per chi scrive qui: le motivazioni non devono riprodurre il codice che
+# scusano. Questo file viene esaminato come tutti gli altri.
+
+src/fleet/discover.js       # gli intervalli privati come costante, e gli esempi nei messaggi di rifiuto
+src/http/api.js             # l'esempio di intervallo nel messaggio che chiede un intervallo
+src/index.js                # l'interfaccia locale su cui si mette in ascolto, che è il default prudente
+sim/fleet.js                # il parco inventato, tutto su loopback
+sim/printer.js              # l'interfaccia su cui un apparato simulato si lega, che è loopback per scelta
+config/fleet.json           # punta al parco inventato di sim/
+config/fleet.example.json   # lo stesso file, come esempio da copiare
+test/fleet.test.js          # gli indirizzi con cui si prova che una scansione fuori dal privato viene rifiutata
+tools/walkthrough.mjs       # gli stessi, per provarlo contro il servizio in esecuzione
+tools/against-a-real-agent.mjs  # l'agente in contenitore su loopback
+tools/through-the-screen.mjs    # la pagina locale
+tools/build-bundle.mjs      # la porta locale su cui il fascio viene avviato per verificare che parta
+README.md                   # gli esempi che spiegano come puntarlo ai propri apparati

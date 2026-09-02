@@ -48,21 +48,24 @@ export function isPrivate(one) {
  * Turns `192.168.1.0/24` into the addresses inside it.
  *
  * The network and broadcast addresses are left out, because nothing answers on
- * them and asking wastes two timeouts per subnet. Anything wider than /16 is
- * refused: sixty-five thousand addresses is already several minutes, and a
- * mistyped /8 is sixteen million.
+ * them and asking wastes two timeouts per subnet.
+ *
+ * **Nothing wider than /16.** A /16 is sixty-five thousand addresses and
+ * already several minutes; a mistyped /8 is sixteen million and would still be
+ * running tomorrow. The bound is on the prefix and nowhere else — there was a
+ * second guard on the count of addresses, and with a floor of /16 it could
+ * never fire. An unreachable guard is worse than none: it reads as protection
+ * and is not, and nothing can test it.
  */
-export function addressesIn(range, { maximum = 65_536 } = {}) {
+export function addressesIn(range) {
   const [base, bits] = range.split('/');
   const prefix = Number(bits);
 
   if (!Number.isInteger(prefix) || prefix < 16 || prefix > 32) {
-    throw new Error(`${range}: the prefix must be between /16 and /32`);
+    throw new Error(`${range}: the prefix must be between /16 and /32, and a /16 is already 65534 addresses`);
   }
 
   const size = 2 ** (32 - prefix);
-  if (size > maximum) throw new Error(`${range} is ${size} addresses, which is more than this will sweep`);
-
   const network = (ip(base) & (0xffffffff << (32 - prefix))) >>> 0;
   const found = [];
 

@@ -51,7 +51,11 @@ export function buildApi({ store, collector, fleet, log = () => {} }) {
       host: device.latest.host,
       reachable: device.latest.reachable,
       why: device.latest.why ?? null,
-      pages: device.latest.pages,
+      // Every device gets the same shape, whatever the reading had in it. A
+      // device that never answered has no page count at all, and a page that
+      // checks for null misses undefined — which broke the board halfway
+      // through drawing and showed one site out of three.
+      pages: device.latest.pages ?? null,
       at: device.latest.at,
       readings: device.readings,
       supplies: device.latest.supplies ?? [],
