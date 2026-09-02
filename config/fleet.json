@@ -1,0 +1,42 @@
+{
+  "_read_me": "The devices to collect from. Everything here points at the invented fleet in sim/, which npm run fleet starts on localhost. Replace it with your own; the file is re-read each round, so a printer can be added without restarting.",
+  "devices": [
+    {
+      "host": "127.0.0.1",
+      "port": 16101,
+      "site": "Harbour Street",
+      "community": "public"
+    },
+    {
+      "host": "127.0.0.1",
+      "port": 16102,
+      "site": "Harbour Street",
+      "community": "public"
+    },
+    {
+      "host": "127.0.0.1",
+      "port": 16103,
+      "site": "Marsh Lane",
+      "community": "public"
+    },
+    {
+      "host": "127.0.0.1",
+      "port": 16104,
+      "site": "Marsh Lane",
+      "community": "public"
+    },
+    {
+      "host": "127.0.0.1",
+      "port": 16105,
+      "site": "Quay Road",
+      "community": "public"
+    },
+    {
+      "host": "127.0.0.1",
+      "port": 16106,
+      "site": "Quay Road",
+      "community": "public",
+      "_note": "nothing is listening here, on purpose: a fleet always has one machine switched off"
+    }
+  ]
+}
