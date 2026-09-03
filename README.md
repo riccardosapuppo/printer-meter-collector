@@ -200,8 +200,8 @@ than saying it.
 ```
 npm test                # 55 assertions over the parts
 npm run check:snmp      # the codec against an agent nobody here wrote
-npm run walkthrough     # 28 over HTTP against the running collector
-npm run check:screen    # drives the board with a browser
+npm run walkthrough     # 28 over HTTP, against a fleet it starts itself
+npm run check:screen    # 21 driving the board with a browser, likewise
 npm run check:mark      # the header mark and the tab icon are one drawing
 ```
 

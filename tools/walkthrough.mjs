@@ -2,9 +2,14 @@
 /**
  * The whole collector, driven over HTTP against the running fleet.
  *
- *     npm run fleet          # in one terminal
- *     npm start              # in another
  *     npm run walkthrough
+ *     npm run walkthrough -- --against http://localhost:3500
+ *
+ * It starts its own fleet and its own collector, on a port nothing else uses,
+ * and stops them again. It used to expect somebody to have started them first,
+ * which meant it could not run on a clean machine -- and, worse, that on a
+ * machine with something already listening on 3500 it passed against whatever
+ * that was. See tools/with-the-service.mjs.
  *
  * The check that is not written behind the same door as the code. The unit
  * tests call the functions directly and were written beside them, which makes
@@ -19,8 +24,11 @@
  */
 
 import { matchesTheReadme } from './what-the-readme-claims.mjs';
+import { withTheService } from './with-the-service.mjs';
 
-const BASE = process.argv[2] || process.env.METERS_URL || 'http://localhost:3500';
+// Set by withTheService, which decides whether that is one it started or one
+// somebody pointed it at with --against.
+let BASE = '';
 
 let checks = 0;
 let failures = 0;
@@ -293,8 +301,10 @@ async function main() {
   console.log(`All ${checks} checks passed.`);
 }
 
-main().catch((error) => {
+withTheService(async (base) => {
+  BASE = base;
+  await main();
+}).catch((error) => {
   console.error(`\n${error.stack}`);
-  console.error(`\nAre both running? ${BASE} did not behave. Start the fleet with npm run fleet.`);
   process.exit(1);
 });

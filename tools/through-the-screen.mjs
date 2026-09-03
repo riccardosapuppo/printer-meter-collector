@@ -17,7 +17,9 @@
 
 import { createRequire } from 'node:module';
 
-const BASE = process.env.METERS_URL || 'http://localhost:3500';
+import { matchesTheReadme } from './what-the-readme-claims.mjs';
+import { startTheService } from './with-the-service.mjs';
+
 const show = process.argv.includes('--show');
 
 let chromium;
@@ -31,8 +33,10 @@ try {
 }
 
 let failures = 0;
+let checks = 0;
 
 function expect(what, condition, detail) {
+  checks += 1;
   if (condition) {
     console.log(`  ok    ${what}`);
   } else {
@@ -41,6 +45,13 @@ function expect(what, condition, detail) {
     if (detail !== undefined) console.log(`        ${detail}`);
   }
 }
+
+// A fleet and a collector of its own, on a port nothing else uses. This used
+// to expect somebody to have started them, which meant the check could not
+// run on a clean machine and -- worse -- passed against whatever happened to
+// be listening on 3500. See with-the-service.mjs.
+const service = await startTheService();
+const BASE = service.base;
 
 const browser = await chromium.launch({ channel: 'msedge', headless: !show });
 const page = await browser.newPage({ viewport: { width: 1360, height: 1100 }, reducedMotion: 'reduce' });
@@ -168,6 +179,10 @@ try {
     console.log(`${failures} checks failed.`);
     process.exitCode = 1;
   } else {
+    console.log('');
+    // Il numero non si mantiene: lo verifica il programma di cui e il numero.
+    if (!matchesTheReadme('npm run check:screen', checks)) process.exitCode = 1;
+    console.log('');
     console.log('Every machine the collector found is on the board, including the one that is off.');
   }
 } catch (error) {
@@ -175,4 +190,5 @@ try {
   process.exitCode = 1;
 } finally {
   await browser.close();
+  await service.stop();
 }
