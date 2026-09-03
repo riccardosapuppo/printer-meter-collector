@@ -49,35 +49,17 @@ jobs:
         # only etag leaves the revalidation that serves a stale page.
         run: npm run check:serving
 
-      - name: Start six invented printers
-        run: |
-          node sim/fleet.js > fleet.log 2>&1 &
-          for try in $(seq 1 40); do
-            node -e '
-              const dgram = require("node:dgram");
-              const s = dgram.createSocket("udp4");
-              s.bind(0, () => s.close(() => process.exit(0)));
-            ' && break
-            sleep 0.25
-          done
-          sleep 2
-          cat fleet.log
-
-      - name: Start the collector
-        run: |
-          node src/index.js --port 3500 > collector.log 2>&1 &
-          for try in $(seq 1 60); do
-            curl -sf http://127.0.0.1:3500/api/health > /dev/null && break
-            sleep 0.5
-          done
-          curl -sf http://127.0.0.1:3500/api/health
-
       - name: Drive the whole collector over HTTP
+        # It starts its own fleet and its own collector, on a port nothing else
+        # uses, and stops them again -- see tools/with-the-service.mjs.
+        #
+        # This step used to start both of them here, in shell, with a readiness
+        # loop of its own. When the tool learned to do that properly the two
+        # setups fought over the simulator UDP ports: the walkthrough fleet
+        # exited 13, EADDRINUSE, and reported that the printers never came up.
+        #
+        # One setup, in one place, and it is the one a person runs too.
         run: npm run walkthrough
-
-      - name: What it said while it ran
-        if: always()
-        run: cat collector.log
 
       # An assertion about what this is, that fails loudly if it stops being
       # true: one runtime dependency, and no `set` anywhere near a device.
