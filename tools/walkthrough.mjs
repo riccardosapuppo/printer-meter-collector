@@ -18,6 +18,8 @@
  * one somebody needed to hear about.
  */
 
+import { matchesTheReadme } from './what-the-readme-claims.mjs';
+
 const BASE = process.argv[2] || process.env.METERS_URL || 'http://localhost:3500';
 
 let checks = 0;
@@ -274,10 +276,19 @@ async function main() {
   expect('and a missing range is asked for', nonsense.status === 400, nonsense.status);
 
   // ------------------------------------------------------------------- end
+  //
+  // The README's own claim about this command, checked by this command. A
+  // number in a README is a claim about a program sitting right there and able
+  // to be asked; until this line existed nobody ever asked it, and a sibling
+  // project drifted from 86 to 92 without one red run.
+  console.log('');
+  if (!matchesTheReadme('npm run walkthrough', checks)) failures += 1;
+
   console.log('');
   if (failures > 0) {
     console.log(`${failures} of ${checks} checks failed.`);
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
   console.log(`All ${checks} checks passed.`);
 }

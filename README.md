@@ -137,7 +137,7 @@ than saying it.
 ## Checking it
 
 ```
-npm test                # 41 assertions over the parts
+npm test                # 49 assertions over the parts
 npm run check:snmp      # the codec against an agent nobody here wrote
 npm run walkthrough     # 28 over HTTP against the running collector
 npm run check:screen    # drives the board with a browser
