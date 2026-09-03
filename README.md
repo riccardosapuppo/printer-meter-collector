@@ -56,7 +56,19 @@ percentage, so 430 labels is not 430%.
 - **No database.** Readings are append-only lines of JSON in `data/`.
 - **Docker, only for one check.** `npm run check:snmp` puts the codec against a
   real `net-snmp` agent. Everything else runs without it.
-- **To undo it:** delete the folder. Nothing is written outside it.
+- **Microsoft Edge, only for two more.** `npm run check:screen` and
+  `npm run check:mark` drive the browser already on this machine
+  (`channel: 'msedge'`) rather than downloading one, and they need
+  `playwright-core`, a devDependency. Both say so and stop if it is missing,
+  rather than reporting a pass they did not earn.
+
+**Measured, not estimated:** `npm install` writes **14 MB** into `node_modules`;
+`npm run check:snmp` pulls `polinux/snmpd` once, which is **89 MB**; the
+readings file is the only thing written and is **1.7 MB** after the rounds that
+made the pictures below. Nothing else touches the network, ever.
+
+**To put the machine back:** delete the folder — nothing is written outside it —
+and `docker image rm polinux/snmpd` if you ran the SNMP check.
 
 ## Running it
 
