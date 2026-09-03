@@ -8,26 +8,62 @@ without noticing. It reads meters; it cannot change a device.
 
 ![The board: three sites, each device leading with what needs doing, supplies drawn as gauges, and the machine that is not answering marked in red](docs/board.png)
 
-## The two decisions worth arguing about
+## Where this came from
 
-### 1. The open standard, not a manufacturer's own interface
+The original was built for a company that got through consumables in volume — a
+floor of machines from one major manufacturer, printing all day, and a recurring
+toner bill large enough that somebody wanted to see it coming. Two questions,
+and neither had an answer anybody trusted: **which machine is about to stop**,
+and **what did we actually print last month**.
 
-Everything this reads is defined in an open IETF standard — the
-**Printer MIB (RFC 3805)**, the Host Resources MIB (RFC 2790) and SNMPv2-MIB
-(RFC 3418). Nothing comes from a vendor's private branch and nothing drives a
-device's admin web page.
+It answered them by **driving each printer's own admin web page**. A headless
+browser logged into the device, clicked through to the supplies screen, and read
+the toner level by **measuring the width of a coloured bar** — because the
+number was not in the markup. Only the bar was.
 
-The service this was rebuilt from did the second: it logged into a printer's
-embedded web interface with a browser, clicked through the menus, and read the
-toner level by **measuring the width of a coloured bar**. That number is an
-inference from a CSS pixel width. `prtMarkerSuppliesLevel` is the device saying
-the number itself.
+It worked, and it paid for itself, and it was wrong in three ways that only show
+up later:
 
-The standard is also what makes it useful across a fleet, which is never one
-make. A collector written against one manufacturer's own numbers has to be
-rewritten for the next purchase.
+- **the reading was an inference from a CSS pixel width.** A firmware update
+  that restyled that page would change every number without anything changing
+  about the printers;
+- **it needed an administrator's login on every device**, kept somewhere, to
+  read a figure the device will hand to anybody who asks politely;
+- **it worked for one make.** The next purchase is a different make with a
+  different admin page, and the collector gets rewritten rather than pointed.
 
-### 2. Three states, not two
+### What this one does instead, and what is missing because of it
+
+This reads **SNMP**, and everything it reads is defined in an open IETF
+standard: the **Printer MIB (RFC 3805)**, the Host Resources MIB (RFC 2790) and
+SNMPv2-MIB (RFC 3418). Nothing comes from a vendor's private branch, and
+`prtMarkerSuppliesLevel` is the device stating the number rather than a picture
+of the number that has to be measured. It is also what makes it useful across a
+fleet, which is never one make.
+
+That is not a compromise made for a public repository. It is what the original
+should have done — and this is worth saying plainly, because the scraping was
+the harder-looking half and it is not here.
+
+**The page-scraping is not reproduced, and will not be.** Not because it is
+difficult: because a public repository cannot ship something whose demonstration
+is logging into a device it does not own, with credentials it has no business
+holding. There is no fleet here to point it at, and a scraper aimed at somebody
+else's hardware is not a thing to publish.
+
+What survives is the part that transfers: reading a fleet nobody wrote this for,
+over a protocol nobody has to be asked for permission to speak. The invented
+printers in [`sim/`](sim/) answer real SNMP on real sockets, so the collector is
+doing the real work against something that behaves like the real thing — the BER
+encoder and the timeouts included.
+
+What SNMP cannot give, and a scraper could, is a **per-user or per-department**
+page count: on most devices that lives only in the vendor's own accounting
+screen. Named here rather than left to be discovered.
+
+## The other decision worth arguing about
+
+### Three states, not two
 
 A supply is not always a number. Sometimes the device says it cannot measure,
 and RFC 3805 has values that say exactly that: −1, −2, −3.
@@ -72,15 +108,28 @@ and `docker image rm polinux/snmpd` if you ran the SNMP check.
 
 ## Running it
 
-Two terminals, because they are two things: some printers, and something that
-reads them.
+One command. It starts six invented printers, waits until they are answering,
+starts the collector, and opens the board.
 
 ```
 npm install
-
-npm run fleet     # six invented printers on 127.0.0.1:16101-16106
-npm start         # the collector and the board, on http://127.0.0.1:3500
+npm start
 ```
+
+The board is at <http://127.0.0.1:3500> and opens by itself — after the first
+round, so what appears is a fleet rather than an empty page that fills in a
+second later. Not in CI, not without a terminal, and not with `--no-open` or
+`NO_OPEN=1`; it says which of those happened.
+
+### The two halves, separately
+
+```
+npm run fleet       # just the six invented printers, on 127.0.0.1:16101-16106
+npm run collector   # just the collector, for pointing at real devices
+```
+
+The second is not only for debugging. **Pointing this at a real fleet is the
+actual use**, and that must not require starting a simulator first.
 
 Point it at real devices by editing [`config/fleet.json`](config/fleet.json).
 The file is **re-read every round**, so a printer can be added without a
@@ -149,7 +198,7 @@ than saying it.
 ## Checking it
 
 ```
-npm test                # 49 assertions over the parts
+npm test                # 55 assertions over the parts
 npm run check:snmp      # the codec against an agent nobody here wrote
 npm run walkthrough     # 28 over HTTP against the running collector
 npm run check:screen    # drives the board with a browser

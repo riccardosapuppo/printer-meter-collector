@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 import { buildApi } from './http/api.js';
 import { collector } from './fleet/schedule.js';
+import { openInABrowser } from './open-a-browser.js';
 import { readDevice } from './fleet/read.js';
 import { readingStore } from './fleet/store.js';
 
@@ -105,6 +106,13 @@ const server = api.listen(port, host, async () => {
   // fleet, not to wait a minute to find out whether it works.
   await rounds.round();
   rounds.start();
+
+  // The board, in front of whoever started this — and only after the first
+  // round, so what opens is a fleet rather than an empty page that fills in a
+  // second later. Never in CI, never without a terminal, never when told not
+  // to: see `open-a-browser.js`.
+  const browser = openInABrowser(`http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/`);
+  log('info', browser.opened ? 'the board is open' : 'the board was not opened', { why: browser.why });
 });
 
 server.on('error', (error) => {

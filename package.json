@@ -8,7 +8,8 @@
   "license": "MIT",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node tools/run-both.mjs",
+    "collector": "node src/index.js",
     "fleet": "node sim/fleet.js",
     "build": "node tools/build-bundle.mjs",
     "test": "node --test",
@@ -23,7 +24,8 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
-    "esbuild": "^0.25.4"
+    "esbuild": "^0.25.4",
+    "playwright-core": "^1.48.0"
   },
   "engines": {
     "node": ">=20.11"
