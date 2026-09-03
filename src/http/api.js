@@ -135,7 +135,28 @@ export function buildApi({ store, collector, fleet, log = () => {} }) {
   });
 
   const here = path.dirname(fileURLToPath(import.meta.url));
-  api.use(express.static(path.join(here, '..', '..', 'public'), { etag: false, maxAge: 0 }));
+
+  /**
+   * `etag: false` alone does not stop a browser serving yesterday's board.
+   *
+   * `lastModified` is a SEPARATE option and defaults to true, so every file
+   * still went out with a `Last-Modified`, every reload was a conditional
+   * request, and a browser may answer one from its own cache with a 304. On a
+   * board whose whole job is to show what the fleet said this morning, being
+   * shown last week's is the worst possible failure — it looks like working
+   * software reporting good news.
+   *
+   * `npm run check:serving` asserts it against the running service.
+   */
+  const never = {
+    etag: false,
+    lastModified: false,
+    setHeaders(response) {
+      response.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    },
+  };
+
+  api.use(express.static(path.join(here, '..', '..', 'public'), never));
 
   api.use((req, res) => {
     res.status(404).json({

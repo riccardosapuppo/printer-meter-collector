@@ -42,6 +42,13 @@ jobs:
       - name: The header mark and the tab icon are one drawing
         run: npm run check:mark
 
+      - name: nobody can be served yesterday's page
+        # A caching header is right in the source and wrong in the response
+        # more often than anything else here: express.static's lastModified
+        # is a SEPARATE option from etag and defaults to true, so turning off
+        # only etag leaves the revalidation that serves a stale page.
+        run: npm run check:serving
+
       - name: Start six invented printers
         run: |
           node sim/fleet.js > fleet.log 2>&1 &
