@@ -10,7 +10,7 @@ without noticing. It reads meters; it cannot change a device.
 
 ## Where this came from
 
-The original was built for a company that got through consumables in volume — a
+The original was built for a company that got through consumables in volume: a
 floor of machines from one major manufacturer, printing all day, and a recurring
 toner bill large enough that somebody wanted to see it coming. Two questions,
 and neither had an answer anybody trusted: **which machine is about to stop**,
@@ -18,7 +18,7 @@ and **what did we actually print last month**.
 
 It answered them by **driving each printer's own admin web page**. A headless
 browser logged into the device, clicked through to the supplies screen, and read
-the toner level by **measuring the width of a coloured bar** — because the
+the toner level by **measuring the width of a coloured bar**, because the
 number was not in the markup. Only the bar was.
 
 It worked, and it paid for itself, and it was wrong in three ways that only show
@@ -42,8 +42,8 @@ of the number that has to be measured. It is also what makes it useful across a
 fleet, which is never one make.
 
 That is not a compromise made for a public repository. It is what the original
-should have done — and this is worth saying plainly, because the scraping was
-the harder-looking half and it is not here.
+should have done, and this is worth saying plainly: the scraping was the
+harder-looking half and it is not here.
 
 **The page-scraping is not reproduced, and will not be.** Not because it is
 difficult: because a public repository cannot ship something whose demonstration
@@ -54,8 +54,8 @@ else's hardware is not a thing to publish.
 What survives is the part that transfers: reading a fleet nobody wrote this for,
 over a protocol nobody has to be asked for permission to speak. The invented
 printers in [`sim/`](sim/) answer real SNMP on real sockets, so the collector is
-doing the real work against something that behaves like the real thing — the BER
-encoder and the timeouts included.
+doing the real work against something that behaves like the real thing, BER
+encoder and timeouts included.
 
 What SNMP cannot give, and a scraper could, is a **per-user or per-department**
 page count: on most devices that lives only in the vendor's own accounting
@@ -70,7 +70,7 @@ and RFC 3805 has values that say exactly that: −1, −2, −3.
 
 Dividing one of those by the maximum gives a confident percentage that is a lie.
 Clamped to zero it becomes an empty bar, which looks exactly like a machine
-about to stop — so a cartridge is ordered and an engineer sent for a printer
+about to stop, so a cartridge is ordered and an engineer sent for a printer
 that is perfectly full.
 
 So "unknown" is drawn as itself: hatched, full width, and labelled in words.
@@ -103,7 +103,7 @@ percentage, so 430 labels is not 430%.
 readings file is the only thing written and is **1.7 MB** after the rounds that
 made the pictures below. Nothing else touches the network, ever.
 
-**To put the machine back:** delete the folder — nothing is written outside it —
+**To put the machine back:** delete the folder (nothing is written outside it)
 and `docker image rm polinux/snmpd` if you ran the SNMP check.
 
 ## Running it
@@ -116,7 +116,7 @@ npm install
 npm start
 ```
 
-The board is at <http://127.0.0.1:3500> and opens by itself — after the first
+The board is at <http://127.0.0.1:3500> and opens by itself after the first
 round, so what appears is a fleet rather than an empty page that fills in a
 second later. Not in CI, not without a terminal, and not with `--no-open` or
 `NO_OPEN=1`; it says which of those happened.
@@ -140,8 +140,8 @@ restart.
 ```
 
 **3500, not 3000.** That is the port every project on a machine uses in turn,
-and a browser remembers service workers, storage and permissions per origin — so
-two projects sharing a port share state neither knows about.
+and a browser remembers service workers, storage and permissions per origin: two
+projects sharing a port share state neither knows about.
 
 ## The six invented printers
 
@@ -159,7 +159,7 @@ meets tidy devices has never been tested.
 | `stores` | **nothing is listening**, because a fleet always has one machine off |
 
 That last one is not decoration. A device that has never answered has no serial,
-so it has no history, so it is not on the board, so nobody knows it is down — and
+so it has no history, so it is not on the board, so nobody knows it is down, and
 that is the failure a fleet report must not have. It is filed under its address
 instead, marked provisional:
 
@@ -209,7 +209,7 @@ Four layers, and each one has caught something the others could not.
 
 **`npm test`** covers the encoding, the normalisation and the scheduler. The BER
 tests check against byte sequences written down from the standard, not against
-this project's own encoder — a codec tested by encoding and decoding its own
+this project's own encoder: a codec tested by encoding and decoding its own
 output agrees with itself about everything, including what it gets wrong.
 
 **`npm run check:snmp`** is the other half of that, and it is the check that
