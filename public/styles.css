@@ -483,6 +483,32 @@ footer {
   font-size: 0.8rem;
 }
 
+/*
+ * The signature, and the only link on the page.
+ *
+ * The footer is small and faint, so colour cannot be what says "link" here:
+ * the underline says it, and the step up from --ink-faint to --ink-soft only
+ * confirms it. No new colour — a bright accent down here would pull the eye
+ * away from the one place on the board that is allowed to be loud.
+ */
+footer a {
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  border-radius: 3px;
+  transition: color 120ms ease;
+}
+
+footer a:hover {
+  color: var(--ink);
+}
+
+footer a:focus-visible {
+  outline: 2px solid var(--steel);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
