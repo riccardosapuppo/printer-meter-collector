@@ -92,8 +92,8 @@ percentage, so 430 labels is not 430%.
 - **No database.** Readings are append-only lines of JSON in `data/`.
 - **Docker, only for one check.** `npm run check:snmp` puts the codec against a
   real `net-snmp` agent. Everything else runs without it.
-- **Microsoft Edge, only for two more.** `npm run check:screen` and
-  `npm run check:mark` drive the browser already on this machine
+- **Microsoft Edge, only for three more.** `npm run check:screen`,
+  `npm run check:looks` and `npm run check:mark` drive the browser already on this machine
   (`channel: 'msedge'`) rather than downloading one, and they need
   `playwright-core`, a devDependency. Both say so and stop if it is missing,
   rather than reporting a pass they did not earn.
@@ -233,10 +233,11 @@ npm test                # 63 assertions over the parts
 npm run check:snmp      # the codec against an agent nobody here wrote
 npm run walkthrough     # 28 over HTTP, against a fleet it starts itself
 npm run check:screen    # 21 driving the board with a browser, likewise
+npm run check:looks     # 8 measuring where things are, rather than reading them
 npm run check:mark      # the header mark and the tab icon are one drawing
 ```
 
-Four layers, and each one has caught something the others could not.
+Five layers, and each one has caught something the others could not.
 
 **`npm test`** covers the encoding, the normalisation and the scheduler. The BER
 tests check against byte sequences written down from the standard, not against
@@ -267,6 +268,20 @@ run is not a check that failed.
 readings that are easy to get wrong — the unmeasurable toner, the waste
 container, the sheets, the two black cartridges — and half about the device that
 is switched off still being in the report.
+
+**`npm run check:looks`** asks a question none of the others did: not what is on
+the page, but **where it is and whether it can be seen**. It exists because
+`check:screen` was green through a fault anybody could see in a screenshot — the
+row across the top was collapsed to twenty-one pixels with half a logo showing,
+and every supply bar was an empty grey track with no level drawn in it.
+
+One cause for both, and it was a class name. The header's row was
+`class="bar"`, and so is the little bar you read a supply level off; the
+gauge's rule is declared later in the stylesheet and says
+`height: 10px; overflow: hidden`, so it won. A check that reads the DOM finds
+every element exactly where it expects: present, labelled, with the right text
+— and the wrong size, or invisible, or on top of each other. So these measure.
+Nothing in them reads a word.
 
 **`npm run check:screen`** found something neither of the others could. The API
 was returning all six devices correctly and the board drew **one site out of

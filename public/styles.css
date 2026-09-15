@@ -115,7 +115,20 @@ code {
   z-index: 4;
 }
 
-.bar {
+/*
+ * `topbar` and not `bar`, and the rename is the whole of a bug.
+ *
+ * The level bar inside every supply row is also a `.bar`, and it is
+ * `height: 10px; overflow: hidden` -- which is right for a gauge and ruinous
+ * for a header. It is declared further down this file, so it won. The header
+ * collapsed to twenty-one pixels, its contents were clipped by an overflow
+ * rule written for something else, and what stayed on screen while scrolling
+ * was a sliver with half a logo in it.
+ *
+ * Two different things cannot share a class name. This one is the row across
+ * the top; that one is a bar you read a level off.
+ */
+.topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -514,7 +527,7 @@ footer a:focus-visible {
 }
 
 @media (max-width: 48rem) {
-  .bar { padding: 0.6rem 1rem; }
+  .topbar { padding: 0.6rem 1rem; }
   main { padding: 1.1rem 1rem 2.5rem; }
   .device header { flex-direction: column; gap: 0.3rem; }
   .pages { text-align: left; }

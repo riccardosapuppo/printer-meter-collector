@@ -175,10 +175,21 @@ function untilItSays(child, pattern, ms, what) {
     function finish() {
       clearTimeout(giveUp);
       child.stdout.off('data', look);
+      child.stderr.off('data', look);
       child.off('exit', stopped);
     }
 
+    /*
+     * Both streams, because a refusal goes to stderr.
+     *
+     * This watched stdout alone, so when the fleet could not bind a port and
+     * said exactly why -- on stderr, as a program should -- what came back
+     * here was "exited with 1 before it was ready. It said: " and then
+     * nothing. The reason was on the screen two lines above and this sentence
+     * covered it over with its own silence.
+     */
     child.stdout.on('data', look);
+    child.stderr.on('data', look);
     child.on('exit', stopped);
   });
 }

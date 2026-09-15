@@ -7,6 +7,14 @@
  * A script rather than files somebody cropped by hand, for the same reason the
  * mark is drawn and not exported: a picture made once drifts from the thing it
  * is a picture of.
+ *
+ * It starts its own fleet and its own collector, on a port nothing else uses.
+ * It used to expect somebody to have started them already, and that is not a
+ * convenience question: the pictures in the README showed a collapsed header
+ * and six empty grey gauges for as long as they had been there, because they
+ * were taken against whatever happened to be listening on 3500 on the day, and
+ * retaking them needed a manoeuvre nobody performed. `METERS_URL` still points
+ * this at a service somebody else started, for looking at a real fleet.
  */
 
 import fs from 'node:fs';
@@ -14,7 +22,11 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
-const BASE = process.env.METERS_URL || 'http://localhost:3500';
+import { startTheService } from './with-the-service.mjs';
+
+const borrowed = process.env.METERS_URL;
+const service = borrowed ? null : await startTheService();
+const BASE = borrowed ?? service.base;
 const here = path.dirname(fileURLToPath(import.meta.url));
 const DOCS = path.join(here, '..', 'docs');
 
@@ -74,4 +86,5 @@ try {
   process.exitCode = 1;
 } finally {
   await browser.close();
+  await service?.stop();
 }
