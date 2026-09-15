@@ -122,6 +122,14 @@ second later. Not in CI, not without a terminal, and not with `--no-open` or
 `NO_OPEN=1`; it says which of those happened. About two seconds, on this
 machine, from the command to a board with six machines on it.
 
+The fourth of those — "nothing is attached to this terminal" — is asked of the
+launcher and not of the collector, and that is the fix for a bug that made the
+sentence above false for as long as it had been written. `npm start` pipes both
+children's output so it can label every line, a piped stdout is not a terminal,
+and the collector asked only itself: so the board never opened from the command
+this file tells people to use. The launcher has the terminal, so the launcher
+says so.
+
 **The collector is not started until the printers say they are up**, and
 "say" is meant literally: the fleet reports on the channel its launcher opened,
 and then one real SNMP request confirms the socket answers. Either half alone
@@ -221,7 +229,7 @@ than saying it.
 ## Checking it
 
 ```
-npm test                # 59 assertions over the parts
+npm test                # 63 assertions over the parts
 npm run check:snmp      # the codec against an agent nobody here wrote
 npm run walkthrough     # 28 over HTTP, against a fleet it starts itself
 npm run check:screen    # 21 driving the board with a browser, likewise

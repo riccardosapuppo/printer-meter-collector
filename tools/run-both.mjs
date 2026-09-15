@@ -40,6 +40,7 @@ import { fileURLToPath } from 'node:url';
 import { FLEET } from '../sim/devices.js';
 import { snmp } from '../src/snmp/client.js';
 import { SYSTEM } from '../src/snmp/oids.js';
+import { environmentFor } from './who-is-watching.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
@@ -64,6 +65,11 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
 function start(name, script, argv, { ipc = false } = {}) {
   const child = spawn(process.execPath, [script, ...argv], {
     cwd: root,
+
+    // Whether a person is in front of this. The children cannot see it for
+    // themselves -- their output is piped so it can be labelled, and a pipe is
+    // not a terminal -- so it is passed. See who-is-watching.mjs.
+    env: environmentFor(),
     // The fourth entry opens a message channel between this process and that
     // one. It is how the fleet says it is ready in a way nothing else on the
     // machine can say for it: see the note where it sends.

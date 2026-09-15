@@ -22,8 +22,7 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 describe('a port that is already taken', () => {
   it('is refused by the printer rather than waited on for ever', async () => {
     // A stranger on the port, standing in for the copy somebody left running.
-    const squatter = dgram.createSocket('udp4');
-    await new Promise((bound) => squatter.bind(16199, '127.0.0.1', bound));
+    const squatter = await squatOn(16199);
 
     try {
       // The failure this replaced was not an exception: it was silence. The
@@ -44,8 +43,7 @@ describe('a port that is already taken', () => {
   });
 
   it('makes the fleet say what happened, and stop, instead of hanging', async () => {
-    const squatter = dgram.createSocket('udp4');
-    await new Promise((bound) => squatter.bind(FLEET[0].port, '127.0.0.1', bound));
+    const squatter = await squatOn(FLEET[0].port);
 
     try {
       const { code, said } = await run(path.join(root, 'sim', 'fleet.js'));
@@ -68,8 +66,7 @@ describe('a port that is already taken', () => {
   it('leaves no printer behind when it gives up half way', async () => {
     // The sixth device is deliberately silent, so 16105 is the last one bound.
     // Taking it means the first four come up and then the fifth refuses.
-    const squatter = dgram.createSocket('udp4');
-    await new Promise((bound) => squatter.bind(FLEET.at(-1).port, '127.0.0.1', bound));
+    const squatter = await squatOn(FLEET.at(-1).port);
 
     try {
       const { code } = await run(path.join(root, 'sim', 'fleet.js'));
@@ -122,6 +119,33 @@ describe('the printers reporting that they are up', () => {
     assert.deepEqual(said.ports, FLEET.map((one) => one.port));
   });
 });
+
+/**
+ * Take a port, standing in for the copy somebody left running.
+ *
+ * With an error path, and that is not ceremony: written as a bind with only a
+ * success callback -- which is what it was, and which is the exact defect
+ * these checks are about -- a port already held by a stray fleet made this
+ * promise hang instead of failing, and the file took three minutes to report
+ * nothing useful. A check that cannot say why it could not run is worse than
+ * one that fails.
+ */
+function squatOn(port) {
+  return new Promise((taken, no) => {
+    const socket = dgram.createSocket('udp4');
+
+    socket.once('error', (wrong) =>
+      no(
+        new Error(
+          `these checks need 127.0.0.1:${port} free and something is on it (${wrong.code}). ` +
+            'Most likely a fleet left running: stop it and run them again.'
+        )
+      )
+    );
+
+    socket.bind(port, '127.0.0.1', () => taken(socket));
+  });
+}
 
 /** Run a script to completion and hand back what it said. */
 function run(script) {
