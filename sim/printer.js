@@ -147,12 +147,48 @@ export function startPrinter(device, { port, host = '127.0.0.1', community = 'pu
     if (answer) socket.send(answer, from.port, from.address);
   });
 
-  return new Promise((ready) => {
-    socket.bind(port, host, () => ready({
-      port: socket.address().port,
-      device,
-      stop: () => new Promise((done) => socket.close(done)),
-    }));
+  /*
+   * The bind has to be able to say no, and for a long time it could not.
+   *
+   * This was a promise with one way out: the success callback. A bind that
+   * failed -- the ordinary case of a second copy of the fleet already holding
+   * 16101 -- emitted an 'error' event that nobody was listening for, the
+   * promise never settled, and the top-level await in fleet.js hung on it for
+   * ever. Node noticed the process could make no further progress and printed
+   *
+   *     Warning: Detected unsettled top-level await at .../sim/fleet.js:145
+   *
+   * before exiting 13. That is a message about Node's internals shown to
+   * somebody whose actual problem is that they left a terminal open, and it is
+   * the whole reason a promise needs both of its ends wired.
+   */
+  return new Promise((ready, refuse) => {
+    const failed = (wrong) => {
+      socket.removeListener('error', failed);
+      socket.close(() => {});
+
+      wrong.port = port;
+      wrong.host = host;
+      refuse(wrong);
+    };
+
+    socket.once('error', failed);
+
+    socket.bind(port, host, () => {
+      socket.removeListener('error', failed);
+
+      // After binding, an error is a different thing and not a start-up
+      // failure: a UDP send to somebody who has gone away comes back as one,
+      // and an agent that fell over because a client disappeared would be a
+      // worse simulation than one that ignores it.
+      socket.on('error', () => {});
+
+      ready({
+        port: socket.address().port,
+        device,
+        stop: () => new Promise((done) => socket.close(done)),
+      });
+    });
   });
 }
 

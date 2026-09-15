@@ -119,7 +119,30 @@ npm start
 The board is at <http://127.0.0.1:3500> and opens by itself after the first
 round, so what appears is a fleet rather than an empty page that fills in a
 second later. Not in CI, not without a terminal, and not with `--no-open` or
-`NO_OPEN=1`; it says which of those happened.
+`NO_OPEN=1`; it says which of those happened. About two seconds, on this
+machine, from the command to a board with six machines on it.
+
+**The collector is not started until the printers say they are up**, and
+"say" is meant literally: the fleet reports on the channel its launcher opened,
+and then one real SNMP request confirms the socket answers. Either half alone
+is not an answer — asking 16101 proves *a* fleet is there and nothing about
+whose, and a second copy left in another terminal answers exactly like this
+one.
+
+Start it twice and it says so, instead of the thing it used to say:
+
+```
+Something is already listening on 127.0.0.1:16101.
+Most likely another copy of these printers, still running.
+Stop it with Ctrl-C in the terminal that started it, or
+find it with:
+  netstat -ano | findstr :16101
+```
+
+The copy already running is left alone, nothing half-starts, and every port
+this attempt did manage to take is given back — a fleet holding four of six
+ports is what makes the *next* attempt fail too, for a reason one step further
+from the cause.
 
 ### The two halves, separately
 
@@ -198,7 +221,7 @@ than saying it.
 ## Checking it
 
 ```
-npm test                # 55 assertions over the parts
+npm test                # 59 assertions over the parts
 npm run check:snmp      # the codec against an agent nobody here wrote
 npm run walkthrough     # 28 over HTTP, against a fleet it starts itself
 npm run check:screen    # 21 driving the board with a browser, likewise
